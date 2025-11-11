@@ -1,0 +1,30 @@
+cmake_minimum_required(VERSION 3.15)
+
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
+set(VCPKG_TARGET_TRIPLET x64-windows-static-release)
+set(VCPKG_HOST_TRIPLET x64-windows-static-release)
+set(BUILD_SHARED_LIBS OFF)
+set(CPR_BUILD_SHARED_LIBS OFF)
+set(CPR_BUILD_TESTS ON)
+set(CPR_BUILD_TESTS_SSL OFF)
+
+# Output directories
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_PDB_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+# Project definitions
+add_definitions(
+    -D_CRT_SECURE_NO_DEPRECATE
+    -D_CRT_SECURE_NO_WARNINGS
+    -D_CRT_NONSTDC_NO_DEPRECATE
+    -DUNICODE
+    -D_UNICODE
+)
+
+project(PoC CXX C ASM_MASM)
+
+find_package(spdlog CONFIG REQUIRED)
+
+add_subdirectory(core)

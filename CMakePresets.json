@@ -1,0 +1,119 @@
+{
+    "version": 5,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 21,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "vcpkg",
+            "hidden": true,
+            "cacheVariables": {
+                "VCPKG_TARGET_TRIPLET": "x64-windows-static-release",
+                "VCPKG_HOST_TRIPLET": "x64-windows-static-release"
+            },
+            "toolchainFile": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+        },
+        {
+            "name": "ninja",
+            "generator": "Ninja",
+            "hidden": true
+        },
+        {
+            "name": "windows",
+            "hidden": true,
+            "toolset": {
+                "value": "v143,host=x64",
+                "strategy": "external"
+            },
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded",
+
+                "CMAKE_CXX_FLAGS_RELEASE": "/O2 /Ob2 /DNDEBUG",
+                "CMAKE_C_FLAGS_RELEASE": "/O2 /Ob2 /DNDEBUG",
+                "CMAKE_EXE_LINKER_FLAGS_RELEASE": "/INCREMENTAL:NO",
+
+                "CMAKE_C_COMPILER": "cl.exe",
+                "CMAKE_CXX_COMPILER": "cl.exe"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "msvc",
+            "hidden": true,
+            "vendor": {
+                "microsoft.com/VisualStudioSettings/CMake/1.0": {
+                    "intelliSenseMode": "windows-msvc-x64"
+                }
+            }
+        },
+        {
+            "name": "ninja-windows-x64-msvc-vcpkg",
+            "hidden": true,
+            "inherits": [
+                "windows",
+                "ninja",
+                "vcpkg",
+                "msvc"
+            ],
+            "cacheVariables": {
+                "CMAKE_RUNTIME_OUTPUT_DIRECTORY": {
+                    "type": "FILEPATH",
+                    "value": "${sourceDir}/build/"
+                }
+            }
+        },
+        {
+            "name": "default",
+            "displayName": "Public Build",
+            "description": "Public",
+            "inherits": [
+                "ninja-windows-x64-msvc-vcpkg"
+            ],
+            "binaryDir": "${sourceDir}/build/public"
+        },
+        {
+            "name": "default-with-pdb",
+            "displayName": "Public w/PDB",
+            "description": "Public w/PDB",
+            "inherits": [
+                "ninja-windows-x64-msvc-vcpkg"
+            ],
+            "cacheVariables": {
+                "CMAKE_CXX_FLAGS_RELEASE": "/O2 /Ob2 /DNDEBUG /Zi",
+                "CMAKE_C_FLAGS_RELEASE": "/O2 /Ob2 /DNDEBUG /Zi",
+                "CMAKE_SHARED_LINKER_FLAGS_RELEASE": "/DEBUG /OPT:REF /OPT:ICF",
+                "CMAKE_EXE_LINKER_FLAGS_RELEASE": "/DEBUG /OPT:REF /OPT:ICF"
+            },
+            "binaryDir": "${sourceDir}/build/private-pdb"
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "default",
+            "configurePreset": "default",
+            "displayName": "Public Build",
+            "description": "Build with Ninja/vcpkg (Release)",
+            "configuration": "Release",
+            "targets": [ "all" ]
+        },
+        {
+            "name": "default-with-pdb",
+            "configurePreset": "default-with-pdb",
+            "displayName": "Private Build With PDB",
+            "description": "Build with Ninja/vcpkg (Release)",
+            "configuration": "Release",
+            "targets": [ "all" ]
+        }
+    ]
+}

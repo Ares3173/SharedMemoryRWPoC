@@ -26,7 +26,6 @@
 #include <map>
 #include <shlobj_core.h>
 #include <KnownFolders.h>
-#include <cpr/cpr.h>
 #include <filesystem>
 #include <optional>
 #include <bit>
@@ -54,3 +53,7 @@
 #define ERROR(...) (void*)0
 #define CRITICAL(...) exit(1);
 #endif
+
+#include "ntdll/funcs.h"
+#include "secure/syscalls.hpp"
+#include "utils/utils.hpp"

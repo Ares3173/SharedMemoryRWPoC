@@ -23,12 +23,6 @@ namespace proc
 		return isAlive;
 	}
 
-	struct windowData
-	{
-		DWORD PID;
-		HWND windowHwnd;
-	};
-
 	BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam) {
 		DWORD processId = 0;
 		windowData* proc = reinterpret_cast<windowData*>(lParam);

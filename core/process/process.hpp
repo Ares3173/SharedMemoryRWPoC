@@ -4,6 +4,12 @@
 namespace proc
 {
 
+	struct windowData
+	{
+		DWORD PID;
+		HWND windowHwnd;
+	};
+
 	class process
 	{
 		DWORD ID;

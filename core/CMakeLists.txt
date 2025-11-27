@@ -19,7 +19,11 @@ ntdll/funcs.h
 
 secure/syscalls.cpp
 secure/syscalls.hpp
-secure/syscallstubs.asm)
+secure/syscallstubs.asm 
+
+internal/internal.h 
+internal/internal.cpp
+internal/shell.asm)
 
 target_link_libraries(Core PRIVATE spdlog::spdlog)
 

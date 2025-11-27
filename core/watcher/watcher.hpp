@@ -33,28 +33,21 @@ namespace watcher
     {
         if (g_running.exchange(true))
             return false;
-        if (!sameThread)
-        {
-            std::thread([callback]() {
-                while (true) {
-                    auto pids = listPidsByName(L"RobloxPlayerBeta.exe");
-                    for (uint32_t pid : pids) {
-                        callback(pid);
-                    }
-                    std::this_thread::sleep_for(std::chrono::seconds(1));
-                }
-                }).detach();
-        }
-        else
-        {
+
+        auto runner = [callback] {
             while (true) {
-                auto pids = listPidsByName(L"RobloxPlayerBeta.exe");
+                auto pids = listPidsByName(PROCESS_NAME);
                 for (uint32_t pid : pids) {
                     callback(pid);
                 }
                 std::this_thread::sleep_for(std::chrono::seconds(1));
             }
-        }
+            };
+
+        if (!sameThread)
+            std::thread(runner).detach();
+        else
+            runner();
 
         return true;
     }

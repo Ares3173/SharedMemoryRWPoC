@@ -2,7 +2,7 @@
 #include "watcher/watcher.hpp"
 #include "process/process.hpp"
 #include "memory/memory.h"
-
+#include "internal/internal.h"
 
 uintptr_t FindCodeCave(HANDLE Process) {
     HMODULE Modules[1024];
@@ -85,7 +85,9 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance,
 
 				const auto target = std::make_unique<proc::process>(pid);
 				LOG("Found Process: 0x{:X}", target->getPID());
-                LOG("Cave Code: 0x{:X}", FindCodeCave(target->getHandle()));
+
+                std::uint8_t* const codeCave = reinterpret_cast<std::uint8_t*>(FindCodeCave(target->getHandle()));
+                LOG("Cave Code: {}", fmt::ptr(codeCave));
 
 
                 //Create Read Shared Page
@@ -95,20 +97,26 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance,
                 if (!readShared->mapView(target->getHandle(), PAGE_READONLY)) { CRITICAL("Failed to map readShared to roblox process"); }
                 LOG("Created ReadShared Page. Local: {} Remote: {}", fmt::ptr(readShared->getLocalAddr()), fmt::ptr(readShared->getRemoteAddr()));
 
+                ZeroMemory(readShared->getLocalAddr(), 0x1000);
+
                 const auto writeShared = std::make_shared<memory::section>(0x1000);
                 if (!writeShared->create()) { CRITICAL("Failed to create writeShared Page"); }
                 if (!writeShared->mapView(NtCurrentProcess(), PAGE_READONLY)) { CRITICAL("Failed to map writeShared to current process"); }
                 if (!writeShared->mapView(target->getHandle(), PAGE_READWRITE)) { CRITICAL("Failed to map writeShared to roblox process"); }
                 LOG("Created WriteShared Page. Local: {} Remote: {}", fmt::ptr(writeShared->getLocalAddr()), fmt::ptr(writeShared->getRemoteAddr()));
 
+                ZeroMemory(writeShared->getLocalAddr(), 0x1000);
+
                 auto readList = reinterpret_cast<std::uintptr_t*>(readShared->getLocalAddr());
                 auto writeList = reinterpret_cast<std::uintptr_t*>(writeShared->getLocalAddr());
                 readList[0] = 0;
 
-                while (true)
-                {
-                    LOG("Current Job: 0x{:X}", writeList[0]);
-                }
+                internal::attach(target.get(), 0x0, codeCave, reinterpret_cast<std::uintptr_t>(writeShared->getRemoteAddr()), reinterpret_cast<std::uintptr_t>(readShared->getRemoteAddr()));
+
+                //while (true)
+                //{
+                //    LOG("Current Job: 0x{:X}", writeList[0]);
+                //}
 			}
 		}, true);
 

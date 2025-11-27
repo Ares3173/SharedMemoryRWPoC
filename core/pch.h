@@ -31,6 +31,7 @@
 #include <bit>
 
 #define USE_DEBUGGING true
+#define PROCESS_NAME L""
 
 #undef ERROR
 #if USE_DEBUGGING
